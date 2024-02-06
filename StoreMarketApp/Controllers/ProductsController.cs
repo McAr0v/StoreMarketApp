@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using StoreMarketApp.Abstractions;
 using StoreMarketApp.Contexts;
 using StoreMarketApp.Contracts.Requests;
 using StoreMarketApp.Contracts.Responses;
 using StoreMarketApp.Models;
+using StoreMarketApp.Services;
 
 namespace StoreMarketApp.Controllers
 {
@@ -12,57 +14,58 @@ namespace StoreMarketApp.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly StoreContext storeContext;
-        public ProductsController(StoreContext context)
+        private readonly IProductServices _productServices;
+        public ProductsController(IProductServices productServices, StoreContext context)
         {
             storeContext = context;
+            _productServices = productServices;
         }
 
         [HttpGet][Route("products/{id}")]
         public ActionResult<ProductResponse> GetProduct(int id)
         {
-            var result = storeContext.Products.FirstOrDefault(x => x.Id == id);
-
-            if (result == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Ok(new ProductResponse(result));
-            }
+            var product = _productServices.GetProductById(id);
+            return Ok(product);
         }
 
         [HttpGet]
         [Route("products")]
         public ActionResult<IEnumerable<ProductResponse>> GetProducts()
         {
-            var result = storeContext.Products;
+            var products = _productServices.GetProducts();
 
-            return Ok(result.Select(x => new ProductResponse(x)));
+            return Ok(products);
         }
 
         [HttpPost]
-        [Route("products")]
-        public ActionResult<ProductResponse> AddProducts(ProductCreateRequest request)
+        [Route("create")]
+        public ActionResult<int> AddProducts(ProductCreateRequest request)
         {
-            Product product = request.GetEntity();
-            
 
-            try 
+            try
             {
+                int id = _productServices.AddProduct(request);
 
-                var result = storeContext.Products.Add(product).Entity;
-                storeContext.SaveChanges();
-                return Ok(new ProductResponse(result));
+                return Ok(id);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
 
         }
 
-        [HttpDelete]
+        [HttpGet(template: "GetProductsCSV")]
+        public FileContentResult GetProductsCsv()
+        {
+            var products = _productServices.GetProducts();
+            var content = _productServices.GetCsv(products);
+
+            return File(new System.Text.UTF8Encoding().GetBytes(content), "text/csv", "report.csv");
+
+        }
+
+        /*[HttpDelete]
         [Route("products/{id}")]
         public ActionResult DeleteProduct(int id)
         {
@@ -84,7 +87,7 @@ namespace StoreMarketApp.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
 
     }
 }

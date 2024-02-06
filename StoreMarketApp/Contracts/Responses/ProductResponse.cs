@@ -11,7 +11,7 @@ namespace StoreMarketApp.Contracts.Responses
         public int? CategoryId { get; set; }
         public decimal Price { get; set; } = decimal.Zero;
 
-        public ProductResponse(Product product) 
+        /*public ProductResponse(Product product) 
         {
             Id = product.Id;
             Name = product.Name;
@@ -19,7 +19,7 @@ namespace StoreMarketApp.Contracts.Responses
             CategoryId = product.CategoryId;
             Price = product.Price;
 
-        }
+        }*/
 
     }
 }

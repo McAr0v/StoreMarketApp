@@ -9,10 +9,10 @@ namespace StoreMarketApp.Contracts.Requests
         public int? CategoryId { get; set; }
         public decimal Price { get; set; } = decimal.Zero;
 
-        public Product GetEntity() 
+        /*public Product GetEntity() 
         {
             return new Product { Name = Name, Description = Description, Price = Price, CategoryId = CategoryId };
-        }
+        }*/
 
     }
 
